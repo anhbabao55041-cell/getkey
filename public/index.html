@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Key & Tải File | Tích hợp Link4M Anti-Bypass HMAC</title>
+  <meta name="description" content="Hệ thống chia sẻ file và cấp key bản quyền tích hợp Link4M với cơ chế bảo vệ Anti-Bypass bằng chữ ký điện tử HMAC-SHA256.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Hiệu ứng vầng sáng nền Ambient -->
+  <div class="bg-ambient">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Thanh điều hướng Header -->
+    <header class="navbar">
+      <a href="/" class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-bolt-lightning"></i>
+        </div>
+        <div class="brand-text">
+          <h1>KEYMASTER <span style="color: var(--accent-cyan);">PRO</span></h1>
+          <span class="brand-badge"><i class="fa-solid fa-shield-halved"></i> ANTI-BYPASS HMAC</span>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <button class="nav-item active" data-tab="files">
+          <i class="fa-solid fa-box-archive"></i> Tệp Tin
+        </button>
+        <button class="nav-item" data-tab="getkey">
+          <i class="fa-solid fa-key"></i> Lấy Khóa
+        </button>
+        <button class="nav-item" data-tab="checkkey">
+          <i class="fa-solid fa-magnifying-glass"></i> Kiểm Tra Key
+        </button>
+        <button class="nav-item" data-tab="about">
+          <i class="fa-solid fa-shield-virus"></i> Bảo Mật
+        </button>
+      </nav>
+
+      <a href="/admin" class="admin-link">
+        <i class="fa-solid fa-user-shield"></i> Quản Trị
+      </a>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-pill">
+        <div class="pulse-dot"></div>
+        Tải File Trực Tiếp • Get Key Link4M Anti-Bypass
+      </div>
+      <h2 class="hero-title">
+        Tải Tệp Tin & <span class="hero-gradient">Get Key Kích Hoạt</span>
+      </h2>
+      <p class="hero-subtitle">
+        Tải tệp tin, scripts và ứng dụng <strong>hoàn toàn trực tiếp</strong> không cần vượt link. Chỉ khi bạn cần <strong>Lấy Khóa (Get Key)</strong> mới cần vượt qua Link4M với hệ thống bảo vệ chống bypass HMAC!
+      </p>
+
+      <div class="hero-metrics">
+        <div class="metric-item">
+          <i class="fa-solid fa-cloud-arrow-down" style="color: var(--accent-emerald);"></i>
+          <span>100% Free</span> Tải File Trực Tiếp
+        </div>
+        <div class="metric-item">
+          <i class="fa-solid fa-fingerprint" style="color: var(--accent-cyan);"></i>
+          <span>HMAC-SHA256</span> Chữ ký bảo mật
+        </div>
+        <div class="metric-item">
+          <i class="fa-solid fa-stopwatch" style="color: var(--accent-amber);"></i>
+          <span>Delta-Time</span> Chống Tool Bypass
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: DANH SÁCH FILE TẢI VỀ -->
+    <main id="tab-files" class="tab-content active">
+      <div class="explorer-controls">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="file-search" class="search-input" placeholder="Tìm kiếm file, script, apk theo tên hoặc danh mục...">
+        </div>
+      </div>
+
+      <div class="files-grid" id="files-container">
+        <!-- Render bằng Javascript -->
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size: 32px; color: var(--accent-cyan);"></i>
+          <p style="margin-top: 12px; color: var(--text-dim);">Đang tải danh sách file...</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 2: CỔNG LẤY KEY (GET KEY) -->
+    <section id="tab-getkey" class="tab-content">
+      <div class="getkey-card">
+        <div class="key-glow-icon">
+          <i class="fa-solid fa-key"></i>
+        </div>
+
+        <!-- Trạng thái số lượng khóa còn lại trong kho & Giới hạn IP -->
+        <div class="key-stock-wrapper">
+          <div id="key-stock-badge" class="key-stock-badge in-stock">
+            <span class="stock-dot"></span>
+            <span id="key-stock-text">Đang kiểm tra số lượng khóa...</span>
+          </div>
+          <div id="ip-limit-badge" class="ip-limit-badge">
+            <i class="fa-solid fa-network-wired"></i> <span id="ip-limit-text">IP: Đang kiểm tra giới hạn...</span>
+          </div>
+        </div>
+
+        <h2 class="getkey-title">Nhận Khóa Kích Hoạt Mới</h2>
+        <p class="getkey-desc">
+          Hệ thống bảo vệ cao cấp: Mỗi địa chỉ IP được nhận <strong>tối đa 2 lần / 24 giờ</strong>. Bạn cần <strong>vượt qua 2 Link4M (Bước 1/2 và Bước 2/2)</strong> để nhận mã Key bản quyền 24h!
+        </p>
+
+        <button id="btn-getkey" class="btn-getkey-main" onclick="startGetKey()">
+          <i class="fa-solid fa-unlock-keyhole"></i> <span id="btn-getkey-text">Bắt Đầu Vượt Link (Bước 1/2)</span>
+        </button>
+
+        <div style="margin-top: 16px; font-size: 13px; color: var(--text-dim);" id="wait-notice">
+          <i class="fa-solid fa-clock-rotate-left"></i> Thời gian chờ tối thiểu chống bypass: 20s / mỗi link
+        </div>
+
+        <div class="steps-list">
+          <div class="step-item">
+            <div class="step-num">BƯỚC 01 / 02</div>
+            <div class="step-text">Bấm bắt đầu và vượt <strong>Link4M số 1</strong>. Giải captcha an toàn và chờ hết thời gian.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">BƯỚC 02 / 02</div>
+            <div class="step-text">Trở về xác nhận bước 1 và bấm vượt tiếp <strong>Link4M số 2</strong> (Link cuối cùng).</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">NHẬN KHÓA</div>
+            <div class="step-text">Hệ thống tự động trừ 1 khóa trong kho và cấp Key kích hoạt độc quyền cho bạn!</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MÀN HÌNH XÁC THỰC VÀ NHẬN KẾT QUẢ (VERIFY) -->
+    <section id="tab-verify" class="tab-content">
+      <div id="verify-result-box">
+        <div class="result-card">
+          <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--accent-cyan); margin-bottom: 16px;"></i>
+          <h3>Đang chờ dữ liệu xác thực...</h3>
+          <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">
+            Màn hình này sẽ tự động kích hoạt khi bạn hoàn thành Link4M và quay trở lại.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: KIỂM TRA TRẠNG THÁI KEY -->
+    <section id="tab-checkkey" class="tab-content">
+      <div class="check-key-box">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <i class="fa-solid fa-id-card-clip" style="font-size: 38px; color: var(--accent-cyan); margin-bottom: 12px;"></i>
+          <h2 style="font-size: 22px; font-weight: 700;">Tra Cứu Khóa Kích Hoạt</h2>
+          <p style="color: var(--text-muted); font-size: 13.5px; margin-top: 4px;">Kiểm tra xem mã key của bạn còn bao nhiêu thời gian sử dụng.</p>
+        </div>
+
+        <form id="check-key-form">
+          <div class="form-group">
+            <label class="form-label" for="check-key-input">DÁN MÃ KHÓA CỦA BẠN VÀO ĐÂY:</label>
+            <input type="text" id="check-key-input" class="form-control" placeholder="KEY-XXXX-XXXX-XXXX" required>
+          </div>
+          <button type="submit" class="btn-submit">
+            <i class="fa-solid fa-magnifying-glass"></i> Kiểm Tra Ngay
+          </button>
+        </form>
+
+        <div id="check-key-result"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: VỀ CƠ CHẾ BẢO MẬT ANTI-BYPASS -->
+    <section id="tab-about" class="tab-content">
+      <div class="getkey-card" style="text-align: left; max-width: 780px;">
+        <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(0, 240, 255, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-cyan); font-size: 22px;">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h2 style="font-size: 22px; font-weight: 800;">Cơ Chế Bảo Vệ Anti-Bypass Bằng Chữ Ký HMAC</h2>
+            <p style="color: var(--text-muted); font-size: 13px;">Công nghệ chống gian lận vượt link tối tân nhất hiện nay</p>
+          </div>
+        </div>
+
+        <div style="font-size: 14px; color: var(--text-muted); line-height: 1.8;">
+          <p style="margin-bottom: 14px;">
+            <strong style="color: #fff;">1. Chữ Ký Mật Mã HMAC-SHA256:</strong> Mỗi khi người dùng bấm lấy key, máy chủ tạo ra một bộ token chứa <em>Mã phiên, Nonce ngẫu nhiên, Timestamp và Địa chỉ IP</em> được bọc chữ ký bí mật bằng mật mã cấp độ ngân hàng. Bất kỳ sự can thiệp, sửa đổi nào của tool bypass đều bị phát hiện ngay lập tức.
+          </p>
+          <p style="margin-bottom: 14px;">
+            <strong style="color: #fff;">2. Giám Sát Thời Gian Delta-Time:</strong> Người thật thao tác trên Link4M cần tối thiểu 20-30 giây để hoàn thành captcha và chờ đếm ngược. Các bot hoặc extension bypass tự động thường xử lý trong 1-5 giây. Hệ thống sẽ ngay lập tức khóa yêu cầu và gắn cờ Bypass.
+          </p>
+          <p>
+            <strong style="color: #fff;">3. Chống Replay Attack (Một Lần Duy Nhất):</strong> Mỗi mã token khi đã nhận key thành công sẽ bị hủy phiên vĩnh viễn trên cơ sở dữ liệu, ngăn chặn việc chia sẻ link xác thực cho người khác.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>
+        © 2026 KeyMaster Service. Thiết kế chuẩn hiệu năng cao, tối ưu cho Render.
+      </div>
+      <div class="footer-badges">
+        <div class="shield-badge">
+          <i class="fa-solid fa-circle-check"></i> HMAC Signed
+        </div>
+        <div class="shield-badge">
+          <i class="fa-solid fa-server"></i> Render Ready
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

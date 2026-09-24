@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Quản Trị Hệ Thống | GetKey & File Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <!-- Màn hình Đăng Nhập Quản Trị -->
+  <div id="login-modal" class="login-screen">
+    <div class="login-card">
+      <div class="login-icon">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">Quản Trị Viên</h2>
+      <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 24px;">
+        Vui lòng nhập mật khẩu quản trị để truy cập hệ thống.
+      </p>
+
+      <form id="login-form">
+        <div class="form-group" style="text-align: left;">
+          <label style="font-size: 12px; color: var(--text-muted);">MẬT KHẨU ADMIN:</label>
+          <input type="password" id="admin-password-input" class="form-input" placeholder="••••••••" required>
+        </div>
+        <div id="login-error" style="color: var(--admin-danger); font-size: 13px; margin-bottom: 14px;"></div>
+        <button type="submit" class="btn-admin btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+          <i class="fa-solid fa-right-to-bracket"></i> Đăng Nhập
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Layout Chính -->
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--admin-primary), var(--admin-purple)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px;">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700;">ADMIN PANEL</h3>
+          <span style="font-size: 11px; color: var(--admin-primary); font-weight: 600;">ANTI-BYPASS V1.0</span>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li>
+          <button class="menu-btn active" data-tab="overview">
+            <i class="fa-solid fa-chart-pie"></i> Tổng Quan
+          </button>
+        </li>
+        <li>
+          <button class="menu-btn" data-tab="files">
+            <i class="fa-solid fa-folder-open"></i> Quản Lý Files
+          </button>
+        </li>
+        <li>
+          <button class="menu-btn" data-tab="keys">
+            <i class="fa-solid fa-key"></i> Quản Lý Keys
+          </button>
+        </li>
+        <li>
+          <button class="menu-btn" data-tab="settings">
+            <i class="fa-solid fa-sliders"></i> Cài Đặt & Link4M
+          </button>
+        </li>
+        <li>
+          <button class="menu-btn" data-tab="logs">
+            <i class="fa-solid fa-shield-virus"></i> Nhật Ký Bypass
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <a href="/" target="_blank" class="menu-btn" style="color: var(--admin-primary); margin-bottom: 6px;">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Xem Trang Chủ
+        </a>
+        <button class="menu-btn" style="color: var(--admin-danger);" onclick="logout()">
+          <i class="fa-solid fa-power-off"></i> Đăng Xuất
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="top-bar">
+        <h2 id="page-title" style="font-size: 20px; font-weight: 700;">Bảng Điều Khiển</h2>
+        <div style="font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+          <span class="pill pill-success"><i class="fa-solid fa-circle"></i> Đang Hoạt Động</span>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <!-- TAB 1: TỔNG QUAN -->
+        <section id="tab-overview" class="admin-tab active">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon cyan"><i class="fa-solid fa-box-archive"></i></div>
+              <div class="stat-info">
+                <h4>Tổng Số File</h4>
+                <div class="stat-value" id="stat-total-files">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon emerald"><i class="fa-solid fa-download"></i></div>
+              <div class="stat-info">
+                <h4>Lượt Tải File</h4>
+                <div class="stat-value" id="stat-total-downloads">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple"><i class="fa-solid fa-key"></i></div>
+              <div class="stat-info">
+                <h4>Key Sẵn Có (Kho)</h4>
+                <div class="stat-value" id="stat-unused-keys">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon amber"><i class="fa-solid fa-user-check"></i></div>
+              <div class="stat-info">
+                <h4>Key Đã Cấp</h4>
+                <div class="stat-value" id="stat-claimed-keys">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon rose"><i class="fa-solid fa-ban"></i></div>
+              <div class="stat-info">
+                <h4>Bypass Bị Chặn</h4>
+                <div class="stat-value" id="stat-bypass-blocked">0</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon cyan"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="stat-info">
+                <h4>Vượt Link Hợp Lệ</h4>
+                <div class="stat-value" id="stat-verifications">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 14px; padding: 24px; margin-top: 20px;">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">Thao Tác Nhanh</h3>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button class="btn-admin btn-primary" onclick="openModal('modal-add-file')">
+                <i class="fa-solid fa-file-arrow-up"></i> Thêm File Mới
+              </button>
+              <button class="btn-admin btn-secondary" onclick="openModal('modal-add-keys')">
+                <i class="fa-solid fa-key"></i> Thêm Bulk Keys
+              </button>
+              <button class="btn-admin btn-secondary" onclick="openModal('modal-gen-keys')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Tự Động Sinh Keys
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: QUẢN LÝ FILES -->
+        <section id="tab-files" class="admin-tab">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 18px; font-weight: 700;">Danh Sách Tệp Tin Tải Về</h3>
+            <button class="btn-admin btn-primary" onclick="openModal('modal-add-file')">
+              <i class="fa-solid fa-plus"></i> Thêm File Mới
+            </button>
+          </div>
+
+          <div class="table-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>TÊN TỆP TIN</th>
+                  <th>PHIÊN BẢN</th>
+                  <th>DUNG LƯỢNG</th>
+                  <th>DANH MỤC</th>
+                  <th>CHẾ ĐỘ TẢI</th>
+                  <th>LƯỢT TẢI</th>
+                  <th>THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody id="files-table-body">
+                <!-- Javascript render -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TAB 3: QUẢN LÝ KEYS -->
+        <section id="tab-keys" class="admin-tab">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 18px; font-weight: 700;">Kho Khóa Kích Hoạt</h3>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-admin btn-secondary" onclick="openModal('modal-gen-keys')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Sinh Tự Động
+              </button>
+              <button class="btn-admin btn-primary" onclick="openModal('modal-add-keys')">
+                <i class="fa-solid fa-plus"></i> Nhập Bulk Keys
+              </button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>MÃ KEY</th>
+                  <th>TRẠNG THÁI</th>
+                  <th>THỜI HẠN</th>
+                  <th>HẾT HẠN LÚC</th>
+                  <th>GHI CHÚ</th>
+                  <th>THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody id="keys-table-body">
+                <!-- Javascript render -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TAB 4: CÀI ĐẶT & ANTI-BYPASS -->
+        <section id="tab-settings" class="admin-tab">
+          <div style="max-width: 700px; background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 16px; padding: 32px;">
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">
+              <i class="fa-solid fa-shield-halved" style="color: var(--admin-primary);"></i> Cấu Hình Link4M & Chữ Ký HMAC Anti-Bypass
+            </h3>
+
+            <form id="settings-form">
+              <div class="form-group">
+                <label>LINK4M API TOKEN (Lấy trong Dashboard Link4M):</label>
+                <input type="text" id="setting-link4m-key" class="form-input" placeholder="Ví dụ: a1b2c3d4e5f6...">
+                <small style="color: var(--text-dim); display: block; margin-top: 4px;">
+                  Nếu để trống, hệ thống sẽ chạy ở chế độ Demo/Mô phỏng để bạn kiểm thử.
+                </small>
+              </div>
+
+              <div class="form-group">
+                <label>HMAC SECRET KEY (Khóa bí mật ký số chống bypass):</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="text" id="setting-hmac-secret" class="form-input" style="font-family: var(--font-mono); font-size: 12px;" required>
+                  <button type="button" class="btn-admin btn-secondary" onclick="generateNewSecret()">
+                    <i class="fa-solid fa-arrows-rotate"></i> Tạo Mới
+                  </button>
+                </div>
+                <small style="color: var(--text-dim); display: block; margin-top: 4px;">
+                  Khóa này dùng để sinh chữ ký số. Người ngoài hoặc tool bypass không thể tự tạo token nếu không có khóa này.
+                </small>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>THỜI GIAN CHỜ TỐI THIỂU (GIÂY) ĐỂ CHẶN BYPASS:</label>
+                  <input type="number" id="setting-min-wait" class="form-input" min="0" max="300" required>
+                  <small style="color: var(--text-dim); display: block; margin-top: 4px;">
+                    Khuyên dùng: 10 đến 35 giây (Tool bypass giải mã < 10s sẽ bị chặn ngay lập tức).
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label>THỜI HẠN KEY MẶC ĐỊNH (GIỜ):</label>
+                  <input type="number" id="setting-key-duration" class="form-input" min="1" max="8760" required>
+                  <small style="color: var(--text-dim); display: block; margin-top: 4px;">
+                    Ví dụ: 24 giờ.
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>SỐ LẦN TỐI ĐA 1 IP ĐƯỢC LẤY KEY:</label>
+                  <input type="number" id="setting-max-keys-ip" class="form-input" min="1" max="100" value="2" required>
+                  <small style="color: var(--text-dim); display: block; margin-top: 4px;">
+                    Mặc định: 2 lần cho mỗi địa chỉ IP.
+                  </small>
+                </div>
+                <div class="form-group">
+                  <label>CHU KỲ GIỚI HẠN IP (GIỜ):</label>
+                  <input type="number" id="setting-ip-limit-hours" class="form-input" min="1" max="720" value="24" required>
+                  <small style="color: var(--text-dim); display: block; margin-top: 4px;">
+                    Mặc định: 24 giờ (sau 24h IP được tính lại từ đầu).
+                  </small>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <button type="button" class="btn-admin btn-secondary" onclick="resetAllIpLimits()">
+                  <i class="fa-solid fa-rotate-left"></i> Xóa / Reset Toàn Bộ Giới Hạn IP
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label>TÊN MIỀN WEBSITE (SITE URL):</label>
+                <input type="text" id="setting-site-url" class="form-input" placeholder="https://your-app-name.onrender.com">
+                <small style="color: var(--text-dim); display: block; margin-top: 4px;">
+                  Điền URL Render của bạn để link rút gọn Link4M chuyển hướng chính xác.
+                </small>
+              </div>
+
+              <hr style="border: none; border-top: 1px solid var(--admin-border); margin: 24px 0;">
+
+              <div class="form-group">
+                <label>ĐỔI MẬT KHẨU ADMIN (Để trống nếu không muốn đổi):</label>
+                <input type="password" id="setting-new-password" class="form-input" placeholder="Tối thiểu 6 ký tự">
+              </div>
+
+              <button type="submit" class="btn-admin btn-primary" style="padding: 12px 24px;">
+                <i class="fa-solid fa-floppy-disk"></i> Lưu Toàn Bộ Cài Đặt
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- TAB 5: NHẬT KÝ CHẶN BYPASS -->
+        <section id="tab-logs" class="admin-tab">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 18px; font-weight: 700;">Nhật Ký Giám Sát Anti-Bypass Thời Gian Thực</h3>
+            <button class="btn-admin btn-secondary" onclick="loadLogs()">
+              <i class="fa-solid fa-arrows-rotate"></i> Làm Mới
+            </button>
+          </div>
+
+          <div class="table-card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>THỜI GIAN</th>
+                  <th>IP CLIENT</th>
+                  <th>TRẠNG THÁI</th>
+                  <th>THỜI GIAN VƯỢT</th>
+                  <th>LÝ DO / GHI CHÚ</th>
+                  <th>USER AGENT</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body">
+                <!-- Javascript render -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: THÊM FILE MỚI -->
+  <div id="modal-add-file" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 18px; font-weight: 700;">Thêm Tệp Tin Mới</h3>
+        <button class="btn-close" data-close-modal="modal-add-file">&times;</button>
+      </div>
+
+      <form id="add-file-form">
+        <div class="form-group">
+          <label>TÊN TỆP TIN / SCRIPT / ỨNG DỤNG:</label>
+          <input type="text" name="title" class="form-input" placeholder="Ví dụ: Roblox Delta Exploit v2.6" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>PHIÊN BẢN:</label>
+            <input type="text" name="version" class="form-input" placeholder="v2.6.0" value="v1.0.0">
+          </div>
+          <div class="form-group">
+            <label>DANH MỤC:</label>
+            <select name="category" class="form-select">
+              <option value="Scripts">Scripts / Code</option>
+              <option value="APK Android">APK Android</option>
+              <option value="Tools PC">Tools PC</option>
+              <option value="Tài Liệu">Tài Liệu</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>MÔ TẢ NGẮN:</label>
+          <textarea name="description" class="form-textarea" placeholder="Nhập tóm tắt tính năng của file..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>NGUỒN FILE:</label>
+            <select name="fileType" id="file-source-type" class="form-select">
+              <option value="DIRECT_URL">Link Ngoài (Google Drive, MediaFire, Discord CDN...)</option>
+              <option value="LOCAL">Upload Trực Tiếp Lên Máy Chủ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CHẾ ĐỘ TẢI FILE:</label>
+            <select name="requiresLink4m" class="form-select">
+              <option value="false" selected>Tải Trực Tiếp Tự Do (Không cần vượt link)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Nhập Link ngoài -->
+        <div class="form-group" id="direct-url-group">
+          <label>ĐƯỜNG DẪN DOWNLOAD (DIRECT URL):</label>
+          <input type="url" name="downloadUrl" class="form-input" placeholder="https://mediafire.com/file/... hoặc https://drive.google.com/...">
+          <div class="form-group" style="margin-top: 10px;">
+            <label>ƯỚC TÍNH DUNG LƯỢNG (HIỂN THỊ):</label>
+            <input type="text" name="fileSize" class="form-input" placeholder="Ví dụ: 25.4 MB">
+          </div>
+        </div>
+
+        <!-- Upload trực tiếp -->
+        <div class="form-group" id="upload-file-group" style="display: none;">
+          <label>CHỌN FILE ĐỂ TẢI LÊN (TỐI ĐA 100MB):</label>
+          <input type="file" name="fileUpload" class="form-input" style="padding: 6px;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+          <button type="button" class="btn-admin btn-secondary" data-close-modal="modal-add-file">Hủy</button>
+          <button type="submit" class="btn-admin btn-primary">Lưu File</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NHẬP BULK KEYS -->
+  <div id="modal-add-keys" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 18px; font-weight: 700;">Nhập Danh Sách Khóa Hàng Loạt</h3>
+        <button class="btn-close" data-close-modal="modal-add-keys">&times;</button>
+      </div>
+
+      <form id="bulk-key-form">
+        <div class="form-group">
+          <label>DÁN DANH SÁCH MÃ KEY (MỖI DÒNG 1 KEY):</label>
+          <textarea id="bulk-keys-text" class="form-textarea" style="min-height: 160px; font-family: var(--font-mono); font-size: 13px;" placeholder="KEY-ABCD-1111&#10;KEY-EFGH-2222&#10;KEY-IJKL-3333" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>THỜI HẠN SỬ DỤNG (GIỜ):</label>
+            <input type="number" id="bulk-duration" class="form-input" value="24" min="1">
+          </div>
+          <div class="form-group">
+            <label>GHI CHÚ / NGUỒN GỐC:</label>
+            <input type="text" id="bulk-note" class="form-input" placeholder="Ví dụ: Đợt key giveaway tháng 3">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn-admin btn-secondary" data-close-modal="modal-add-keys">Hủy</button>
+          <button type="submit" class="btn-admin btn-primary">Thêm Vào Kho</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SINH KEY TỰ ĐỘNG -->
+  <div id="modal-gen-keys" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 18px; font-weight: 700;">Tự Động Sinh Khóa Ngẫu Nhiên</h3>
+        <button class="btn-close" data-close-modal="modal-gen-keys">&times;</button>
+      </div>
+
+      <form id="gen-key-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>SỐ LƯỢNG KEY CẦN TẠO (1 - 200):</label>
+            <input type="number" id="gen-count" class="form-input" value="20" min="1" max="200" required>
+          </div>
+          <div class="form-group">
+            <label>TIỀN TỐ (PREFIX):</label>
+            <input type="text" id="gen-prefix" class="form-input" value="KEY" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>THỜI HẠN SỬ DỤNG (GIỜ):</label>
+          <input type="number" id="gen-duration" class="form-input" value="24" min="1" required>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn-admin btn-secondary" data-close-modal="modal-gen-keys">Hủy</button>
+          <button type="submit" class="btn-admin btn-primary">Sinh Ngay</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
