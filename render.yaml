@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: getkey-link4m-service
+    env: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ADMIN_PASSWORD
+        value: "quocthai"
+      - key: HMAC_SECRET
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MIN_WAIT_SECONDS
+        value: "20"
+      - key: SESSION_EXPIRE_SECONDS
+        value: "900"
+      - key: LINK4M_API_KEY
+        value: "6a44cabb1c08580bcd40f8ce"
+      - key: SITE_URL
+        value: "https://brmodgetkey.onrender.com"
+      - key: HMAC_SECRET
+        value: "b8d7a6e5f4c3b2a1908976543210fedcba987654321abcdef0123456789abcdef"
+      - key: MONGODB_URI
+        sync: false
